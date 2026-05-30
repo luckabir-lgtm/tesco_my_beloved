@@ -6,6 +6,7 @@ static bool itemTexturePreloadFinished = false;
 Font AssetManager::mainFont = { 0 };
 Sound AssetManager::menuMusic = { 0 };
 Sound AssetManager::gameMusic = { 0 };
+Sound AssetManager::depressionMusic = { 0 };
 Sound* AssetManager::currentMusic = nullptr;
 std::vector<ItemTemplate> AssetManager::itemDatabase;
 std::map<std::string, Texture2D> AssetManager::textures;
@@ -15,12 +16,14 @@ void AssetManager::LoadAll(){
     mainFont = LoadFontEx("ASSets/fonts/Daydream.otf", 64, nullptr, 0);
     menuMusic = LoadSound("ASSets/sounds/menu.wav");
     gameMusic = LoadSound("ASSets/sounds/game.wav");
+    depressionMusic = LoadSound("ASSets/sounds/deprese.wav");
 }
 
 void AssetManager::UnloadAll(){
     StopAllMusic();
     UnloadSound(menuMusic);
     UnloadSound(gameMusic);
+    UnloadSound(depressionMusic);
     UnloadFont(mainFont);
 
     for (auto const& [id, tex] : textures) {
@@ -53,6 +56,9 @@ void AssetManager::SetActiveMusic(MusicType type)
     else if (type == MUSIC_GAME) {
         wantedMusic = &gameMusic;
     }
+    else if (type == MUSIC_DEPRESSION) {
+        wantedMusic = &depressionMusic;
+    }
     else {
         wantedMusic = nullptr;
     }
@@ -76,6 +82,7 @@ void AssetManager::StopAllMusic()
 {
     StopSound(menuMusic);
     StopSound(gameMusic);
+    StopSound(depressionMusic);
     currentMusic = nullptr;
 }
 

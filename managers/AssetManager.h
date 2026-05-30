@@ -10,7 +10,8 @@ enum MusicType
 {
     MUSIC_NONE,
     MUSIC_MENU,
-    MUSIC_GAME
+    MUSIC_GAME,
+    MUSIC_DEPRESSION
 };
 
 enum ItemCategory {
@@ -34,6 +35,7 @@ class AssetManager {
         static Font mainFont;
         static Sound menuMusic;
         static Sound gameMusic;
+        static Sound depressionMusic;
         static std::vector<ItemTemplate> itemDatabase; 
         static std::map<std::string, Texture2D> textures;
         static std::map<std::string, Texture2D> customerTextures;

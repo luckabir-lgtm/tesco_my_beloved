@@ -62,9 +62,20 @@ int main() {
             );
         }
 
-        if (videoPlaying) {
+        if (gameSettings.depressionMode) {
+            AssetManager::SetActiveMusic(MUSIC_DEPRESSION);
+        }
+        else if (videoPlaying) {
             AssetManager::SetActiveMusic(MUSIC_NONE);
-        }else if (currentState == STATE_INTRO || currentState == STATE_MENU || currentState == STATE_SETTINGS || currentState == STATE_PROFILE || currentState == STATE_SCORE || currentState == STATE_SAVES){
+        }
+        else if (
+            currentState == STATE_INTRO ||
+            currentState == STATE_MENU ||
+            currentState == STATE_SETTINGS ||
+            currentState == STATE_PROFILE ||
+            currentState == STATE_SCORE ||
+            currentState == STATE_SAVES
+        ){
             AssetManager::SetActiveMusic(MUSIC_MENU);
         }
         else if (currentState == STATE_PLAYING){
@@ -75,8 +86,7 @@ int main() {
             }
         }
 
-                AssetManager::UpdateAudio();
-
+        AssetManager::UpdateAudio();
 
         if (currentState != lastState) {
             switch (currentState) {
