@@ -24,12 +24,10 @@ public:
     Color fallbackColor; 
     Vector2 pos;
     bool isScanned;
+    bool missedPenaltyGiven;
     ItemCategory category;
 
-    Item(std::string n, int p, int cp, Texture2D tex, Color fallback, Vector2 startPos, ItemCategory cat = NORMAL) 
-        : name(n), basePrice(p), clubcardPrice(cp), texture(tex), fallbackColor(fallback), pos(startPos), isScanned(false), category(cat) {}
-    
-    virtual ~Item() = default;
+    Item(std::string n, int p, int cp, Texture2D tex, Color fallback, Vector2 startPos, ItemCategory cat = NORMAL) : name(n), basePrice(p), clubcardPrice(cp), texture(tex), fallbackColor(fallback), pos(startPos), isScanned(false), missedPenaltyGiven(false), category(cat) {}    virtual ~Item() = default;
 
     Rectangle getRect() const { return Rectangle{ pos.x, pos.y, 120, 80 }; }
     
@@ -102,6 +100,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
     static std::string qteResultText = "";
     static float qteResultTimer = 0.0f;
     static bool qteRolledForThisCustomer = false;
+    static bool ageRestrictionMistakeGiven = false;
 
     if (resetGameSignal) {
         initialized = false;
@@ -110,6 +109,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         qteTimer = 0.0f;
         qteResultText = "";
         qteResultTimer = 0.0f;
+
     }
 
 
@@ -124,6 +124,28 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         totalSum = 0;            
         askedForCard = false;
         beltItems.clear();
+
+        mistakeDisplayTimer = 0.0f;
+        mistakeMessage = "";
+
+        showingDiscounts = false;
+        discountTimer = 0.0f;
+        discountIndex = 0;
+        discountLines.clear();
+        finalDiscountedTotal = 0;
+
+        qteActive = false;
+        qteTimer = 0.0f;
+        qteResultText = "";
+        qteResultTimer = 0.0f;
+        qteRolledForThisCustomer = false;
+
+        ageRestrictionMistakeGiven = false;
+
+        leftHand.isHolding = false;
+        leftHand.holdingItemIndex = -1;
+        rightHand.isHolding = false;
+        rightHand.holdingItemIndex = -1;
 
         SpawnCustomerAndItems(currentCustomer, beltItems);
         qteRolledForThisCustomer = false;
@@ -302,7 +324,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
                         );
                     }
                 }
-                mistakeMessage = "Zakazane zbozi odebrano.";
+                mistakeMessage = "Zakazane zbozi odebrano";
                 mistakeDisplayTimer = 2.0f;
             }
         }
@@ -318,23 +340,44 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
                 
                 totalSum += beltItems[i]->basePrice;
 
-                if (beltItems[i]->category == RESTRICTED_18 && currentCustomer->age < 18) {
+                if (beltItems[i]->category == RESTRICTED_18 && currentCustomer->age < 18 && !ageRestrictionMistakeGiven) {
+                    ageRestrictionMistakeGiven = true;
+
                     currentShift.mistakesMade++;
-                    mistakeMessage = "Chyba! Prodal jsi alkohol nezletilemu!";
+                    mistakeMessage = "Chyba Prodal jsi alkohol nezletilemu";
                     mistakeDisplayTimer = 3.0f;
+
+                    if (currentShift.mistakesMade >= 3) {
+                        currentShift.wasFired = true;
+                        mistakeMessage = "Mas padaka";
+                    }
                 }
                 currentShift.itemsScanned++;
             }
         }
 
         for (size_t i = 0; i < beltItems.size(); i++) {
-            if (!beltItems[i]->isScanned && beltItems[i]->pos.x > 500) {
-                currentShift.mistakesMade++; 
-                beltItems[i]->pos.x = -50; 
+            bool held =
+                ((int)i == leftHand.holdingItemIndex && leftHand.isHolding) ||
+                ((int)i == rightHand.holdingItemIndex && rightHand.isHolding);
+
+            if (!held &&
+                !beltItems[i]->isScanned &&
+                !beltItems[i]->missedPenaltyGiven &&
+                beltItems[i]->pos.x > 780)
+            {
+                beltItems[i]->missedPenaltyGiven = true;
+                beltItems[i]->isScanned = true;
+                beltItems[i]->pos.x = 900;
+
+                currentShift.mistakesMade++;
+                mistakeMessage = "Chyba Zbozi proslo bez naskenovani";
+                mistakeDisplayTimer = 3.0f;
+
                 if (currentShift.mistakesMade >= 3) {
                     currentShift.wasFired = true;
+                    mistakeMessage = "Mas padaka";
                 }
-                mistakeDisplayTimer = 3.0f;
             }
         }
 
@@ -358,13 +401,13 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
 
        // --- LOGIKA CLUB CARD ---
         if (currentCustomer->state == WAITING) {
-            Rectangle askCardBtn = { 50, 150, 150, 30 }; // Definice zde
+            Rectangle askCardBtn = { 50, 150, 150, 30 }; 
             
             if (!currentCustomer->hasCheckedCard && (HandClick(leftHand, askCardBtn) || HandClick(rightHand, askCardBtn))) {
                 currentCustomer->hasCheckedCard = true;
                 if (currentCustomer->hasClubcard) {
                     currentCustomer->gaveClubcard = true;
-                    currentCustomer->cardResponse = "Ano, tady ji mam.";
+                    currentCustomer->cardResponse = "Ano tady ji mam.";
                 } else {
                     currentCustomer->cardResponse = "Bohuzel ji nemam.";
                 }
@@ -400,7 +443,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
                 // Kontrola: Pokud měl kartu a nezeptal ses, je to chyba
                 if (currentCustomer->hasClubcard && !currentCustomer->hasCheckedCard) {
                     currentShift.mistakesMade++;
-                    mistakeMessage = "Chyba! Nezeptal jsi se na Clubcard!";
+                    mistakeMessage = "Chyba Nezeptal jsi se na Clubcard";
                     mistakeDisplayTimer = 3.0f;
                     if (currentShift.mistakesMade >= 3) currentShift.wasFired = true;
                 }
@@ -423,6 +466,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         // --- SPAWN DALŠÍHO ZÁKAZNÍKA ---
         if (currentCustomer->state == GONE) {
             SpawnCustomerAndItems(currentCustomer, beltItems);
+            ageRestrictionMistakeGiven = false;
             qteRolledForThisCustomer = false;
             qteActive = false;
             qteTimer = 0.0f;
@@ -495,7 +539,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
 
    if (currentCustomer && currentCustomer->state == PAYING) {
         DrawRectangleRec({ 325, 230, 150, 40 }, GREEN);
-        DrawText("VZIT PENIZE", 335, 243, 12, WHITE);
+        DrawText("ZAPLATIT", 335, 243, 12, WHITE);
     }
 
     if (currentCustomer && !currentCustomer->cardResponse.empty()) {
