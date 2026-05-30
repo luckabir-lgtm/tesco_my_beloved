@@ -36,6 +36,7 @@ class AssetManager {
         static Sound menuMusic;
         static Sound gameMusic;
         static Sound depressionMusic;
+        static Texture2D clubcardTexture;
         static std::vector<ItemTemplate> itemDatabase; 
         static std::map<std::string, Texture2D> textures;
         static std::map<std::string, Texture2D> customerTextures;

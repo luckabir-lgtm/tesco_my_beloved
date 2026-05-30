@@ -151,10 +151,6 @@ void Customer::Draw() const
 
     DrawPatienceBar();
 
-    if (gaveClubcard) {
-        DrawRectangle((int)pos.x + 70, (int)pos.y + 60, 30, 20, ORANGE);
-        DrawText("KARTA", (int)pos.x + 72, (int)pos.y + 65, 8, BLACK);
-    }
     DrawSpeechBubble();
 }
 
