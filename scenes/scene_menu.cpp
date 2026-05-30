@@ -21,6 +21,14 @@ void runMenu(GameState &currentState, InputManager &input, bool& isGamePaused) {
 
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), Camera2D{ Vector2{0,0}, Vector2{0,0}, 0.0f, fminf((float)GetScreenWidth()/800.0f, (float)GetScreenHeight()/600.0f) });
     
+    float scale = fminf(
+        (float)GetScreenWidth() / 800.0f,
+        (float)GetScreenHeight() / 600.0f
+    );
+
+    mousePos.x = (mousePos.x - ((float)GetScreenWidth() - (800.0f * scale)) * 0.5f) / scale;
+    mousePos.y = (mousePos.y - ((float)GetScreenHeight() - (600.0f * scale)) * 0.5f) / scale;
+
     bool canContinue = isUserLoggedIn && (isGamePaused || HasSaveGame());
 
     if (CheckCollisionPointRec(mousePos, startButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
@@ -28,6 +36,9 @@ void runMenu(GameState &currentState, InputManager &input, bool& isGamePaused) {
             isGamePaused = false; 
             resetGameSignal = true;
             currentSubState = SUB_CALENDAR;
+            activeProfile.shiftsCompleted = 0;
+            activeProfile.totalMoneyEarned = 0;
+            activeProfile.customersServed = 0;
             activeProfile.shiftsCompleted = 0;
             activeProfile.totalMoneyEarned = 0;
             activeProfile.customersServed = 0;

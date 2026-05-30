@@ -144,6 +144,20 @@ void runProfile(GameState& currentState, InputManager& input, bool& isGamePaused
                         file >> inspectedProfile.save_id;
                         file >> inspectedProfile.shiftsCompleted;
                         file >> inspectedProfile.customersServed;
+                        if (!(file >> inspectedProfile.totalMoneyEarned)) {
+                            inspectedProfile.totalMoneyEarned = 0;
+                            file.clear();
+                        }
+
+                        if (!(file >> inspectedProfile.currentDayStreak)) {
+                            inspectedProfile.currentDayStreak = 0;
+                            file.clear();
+                        }
+
+                        if (!(file >> inspectedProfile.bestDayStreak)) {
+                            inspectedProfile.bestDayStreak = 0;
+                            file.clear();
+                        }
                         file.close();
 
                         if (isTextureLoaded) {

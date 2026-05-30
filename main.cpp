@@ -142,8 +142,7 @@ int main() {
                 break;
         }
 
-        if (currentState != STATE_INTRO && currentState != STATE_EXIT) {
-            extern bool videoPlaying; 
+    if (currentState != STATE_INTRO && currentState != STATE_EXIT && currentState != STATE_PLAYING) {            extern bool videoPlaying; 
             if (!videoPlaying) {
                 std::string statusText = isUserLoggedIn ? "Pokladni: " + activeProfile.nickname : "Neprihlasen";
                 Color textColor = isUserLoggedIn ? GREEN : RED;

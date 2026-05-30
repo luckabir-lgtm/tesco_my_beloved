@@ -16,23 +16,40 @@ void runStatsScene(GameState &currentState, InputManager &input) {
 
     static bool isProgressSaved = false;
     static bool newRecord = false;
+    static bool newStreakRecord = false;
 
     if (!isProgressSaved && isUserLoggedIn) {
         newRecord = false;
+        newStreakRecord = false;
 
         if (!currentShift.wasFired) {
+            // den se započítá hned po úspěšné směně
             activeProfile.shiftsCompleted++;
+
+            // výdělek a lidi se započítají hned
             activeProfile.totalMoneyEarned += currentShift.moneyEarned;
             activeProfile.customersServed += currentShift.customersServed;
 
+            // série dnů bez vyhazovu
+            activeProfile.currentDayStreak++;
+
+            if (activeProfile.currentDayStreak > activeProfile.bestDayStreak) {
+                activeProfile.bestDayStreak = activeProfile.currentDayStreak;
+                newStreakRecord = true;
+            }
+
+            // nejlepší výdělek za jednu směnu
             if (currentShift.moneyEarned > activeProfile.maxScore) {
                 activeProfile.maxScore = currentShift.moneyEarned;
                 newRecord = true;
             }
-
-            activeProfile.UpdateRank();
-            SaveProfile();
+        } else {
+            // vyhazov = série končí
+            activeProfile.currentDayStreak = 0;
         }
+
+        activeProfile.UpdateRank();
+        SaveProfile();
 
         isProgressSaved = true;
     }
