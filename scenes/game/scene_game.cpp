@@ -3,6 +3,7 @@
 #include "../../managers/InputManager.h"
 #include "../../managers/AssetManager.h"
 #include "../../managers/CustomerManager.h"
+#include "../../classes/items/Item.h"
 #include "../../classes/Customer.h"
 #include "../../classes/QTEEvent.h"
 #include "../../classes/Player.h"
@@ -15,39 +16,6 @@
 
 #define QTE_TIME_LIMIT 20.0f
 
-class Item {
-public:
-    std::string name;
-    int basePrice;
-    int clubcardPrice;
-    Texture2D texture; 
-    Color fallbackColor; 
-    Vector2 pos;
-    bool isScanned;
-    bool missedPenaltyGiven;
-    ItemCategory category;
-
-    Item(std::string n, int p, int cp, Texture2D tex, Color fallback, Vector2 startPos, ItemCategory cat = NORMAL) : name(n), basePrice(p), clubcardPrice(cp), texture(tex), fallbackColor(fallback), pos(startPos), isScanned(false), missedPenaltyGiven(false), category(cat) {}    virtual ~Item() = default;
-
-    Rectangle getRect() const { return Rectangle{ pos.x, pos.y, 120, 80 }; }
-    
-    void Draw() {
-        if (texture.id > 0) {
-            Rectangle dest = { pos.x, pos.y, 120, 80 };
-            Rectangle source = { 0, 0, (float)texture.width, (float)texture.height };
-            Vector2 origin = { 0, 0 };
-        DrawTexturePro(texture, source, dest, origin, 0.0f, WHITE);
-        } else {
-            DrawRectangleRec(getRect(), fallbackColor);
-            DrawRectangleLines((int)pos.x, (int)pos.y, 120, 80, BLACK);
-            DrawText(name.c_str(), pos.x + 5, pos.y + 12, 10, fallbackColor.r > 200 && fallbackColor.g > 200 ? BLACK : WHITE);        
-        }
-        
-        if (isScanned) DrawText("[OK]", pos.x + 12, pos.y - 12, 10, GREEN);
-    }
-
-    virtual bool requiresSpecialAction() { return false; } 
-};
 
 
 
@@ -275,8 +243,22 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
             } else { rightHand.isHolding = false; rightHand.holdingItemIndex = -1; }
         }
 
-        if (leftHand.isHolding) beltItems[leftHand.holdingItemIndex]->pos = Vector2{ leftHand.pos.x - 25, leftHand.pos.y - 20 };
-        if (rightHand.isHolding) beltItems[rightHand.holdingItemIndex]->pos = Vector2{ rightHand.pos.x - 25, rightHand.pos.y - 20 };
+    if (leftHand.isHolding) {
+        auto& item = beltItems[leftHand.holdingItemIndex];
+        item->pos = Vector2{
+            leftHand.pos.x - item->drawWidth * 0.5f,
+            leftHand.pos.y - item->drawHeight * 0.5f
+        };
+    }
+
+    if (rightHand.isHolding) {
+        auto& item = beltItems[rightHand.holdingItemIndex];
+        item->pos = Vector2{
+            rightHand.pos.x - item->drawWidth * 0.5f,
+            rightHand.pos.y - item->drawHeight * 0.5f
+        };
+    }
+
 
         // GRAVITACE ITEMU
         for (size_t i = 0; i < beltItems.size(); i++) {
