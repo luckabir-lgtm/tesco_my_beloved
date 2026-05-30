@@ -4,6 +4,7 @@
 #include "../../structures/Profile.h"
 #include "raylib.h"
 #include <cmath>
+#include <string>
 
 void runStatsScene(GameState &currentState, InputManager &input) {
     Vector2 mousePos = GetMousePosition();
@@ -14,15 +15,25 @@ void runStatsScene(GameState &currentState, InputManager &input) {
     ClearBackground(RAYWHITE);
 
     static bool isProgressSaved = false;
+    static bool newRecord = false;
 
-    // Save profile data only once when entering this state
     if (!isProgressSaved && isUserLoggedIn) {
+        newRecord = false;
+
         if (!currentShift.wasFired) {
-            activeProfile.shiftsCompleted++; 
-            activeProfile.maxScore += currentShift.moneyEarned;
+            activeProfile.shiftsCompleted++;
+            activeProfile.totalMoneyEarned += currentShift.moneyEarned;
+            activeProfile.customersServed += currentShift.customersServed;
+
+            if (currentShift.moneyEarned > activeProfile.maxScore) {
+                activeProfile.maxScore = currentShift.moneyEarned;
+                newRecord = true;
+            }
+
             activeProfile.UpdateRank();
             SaveProfile();
         }
+
         isProgressSaved = true;
     }
 
@@ -42,6 +53,17 @@ void runStatsScene(GameState &currentState, InputManager &input) {
     DrawTextEx(AssetManager::mainFont, TextFormat("Naskenovano zbozi  %d ks", currentShift.itemsScanned), Vector2{ 230, (float)cardY + 70 }, 14.0f, 1.0f, BLACK);
     DrawTextEx(AssetManager::mainFont, TextFormat("Dopustil ses chyb  %d / 3", currentShift.mistakesMade), Vector2{ 230, (float)cardY + 110 }, 14.0f, 1.0f, currentShift.mistakesMade >= 3 ? RED : BLACK);
     DrawTextEx(AssetManager::mainFont, TextFormat("Dnesni trzba kasy  %d Kc", currentShift.moneyEarned), Vector2{ 230, (float)cardY + 170 }, 16.0f, 1.0f, GOLD);
+
+    if (newRecord) {
+        DrawTextEx(
+            AssetManager::mainFont,
+            "NOVY OSOBNI REKORD!",
+            Vector2{ 210, (float)cardY + 280 },
+            14.0f,
+            1.0f,
+            RED
+        );
+    }
 
     // Action button
     Rectangle actionBtn = { 250, 450, 300, 45 };

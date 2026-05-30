@@ -135,6 +135,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
     static bool qteRolledForThisCustomer = false;
     static bool ageRestrictionMistakeGiven = false;
     static float clubcardPromptCenterY = 165.0f;
+    static bool shiftClosing = false;
 
     if (resetGameSignal) {
         initialized = false;
@@ -143,49 +144,40 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         qteTimer = 0.0f;
         qteResultText = "";
         qteResultTimer = 0.0f;
-
     }
 
 
     if (!initialized) {
         leftHand = { Vector2{ 250, 300 }, false, -1, {255, 204, 153, 255}, true };
         rightHand = { Vector2{ 550, 300 }, false, -1, {255, 204, 153, 255}, false };
-        
         shiftTimer = Day::TimeLimit(); 
         Day::ResetShiftStats(currentShift);        
-        
         receiptHistory.clear();  
         totalSum = 0;            
         askedForCard = false;
         beltItems.clear();
-
         mistakeDisplayTimer = 0.0f;
         mistakeMessage = "";
-
         showingDiscounts = false;
         discountTimer = 0.0f;
         discountIndex = 0;
         discountLines.clear();
         finalDiscountedTotal = 0;
         pendingDiscountLines.clear();
-
         qteActive = false;
         qteTimer = 0.0f;
         qteResultText = "";
         qteResultTimer = 0.0f;
         qteRolledForThisCustomer = false;
-
         ageRestrictionMistakeGiven = false;
-
         leftHand.isHolding = false;
         leftHand.holdingItemIndex = -1;
         rightHand.isHolding = false;
         rightHand.holdingItemIndex = -1;
-
         SpawnCustomerAndItems(currentCustomer, beltItems);
         clubcardPromptCenterY = 165.0f + (float)GetRandomValue(-20, 20);
         qteRolledForThisCustomer = false;
-
+        shiftClosing = false;
         initialized = true;
     }
 
@@ -196,8 +188,18 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
     }
 
     if (!isGamePaused) {
-        shiftTimer -= GetFrameTime();
+        if (!shiftClosing) {
+            shiftTimer -= GetFrameTime();
+
+            if (shiftTimer <= 0.0f) {
+                shiftTimer = 0.0f;
+                shiftClosing = true;
+            }
+        }
+
         if (mistakeDisplayTimer > 0) mistakeDisplayTimer -= GetFrameTime();
+
+
 
         if (qteResultTimer > 0.0f) {
             qteResultTimer -= GetFrameTime();
@@ -234,7 +236,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         }
 
 
-        if (shiftTimer <= 0.0f || currentShift.wasFired) {
+        if (currentShift.wasFired) {
             subState = SUB_STATS; 
             return;
         }
@@ -512,6 +514,8 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
                     if (currentShift.mistakesMade >= 3) currentShift.wasFired = true;
                 }
 
+                currentShift.moneyEarned += totalSum;
+                currentShift.customersServed++;
                 currentCustomer->SayExitLine();
                 currentCustomer->state = WALKING_OUT;
                 qteActive = false;
@@ -533,6 +537,12 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
 
         // --- SPAWN DALŠÍHO ZÁKAZNÍKA ---
         if (currentCustomer->state == GONE) {
+
+                if (shiftClosing) {
+                    subState = SUB_STATS;
+                    return;
+                }
+
             SpawnCustomerAndItems(currentCustomer, beltItems);
             clubcardPromptCenterY = 165.0f + (float)GetRandomValue(-20, 20);
             ageRestrictionMistakeGiven = false;

@@ -44,7 +44,7 @@ void runCalendarScene(GameState &currentState, InputManager &input) {
     if (hoverStart && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         // Reset counters for the new shift
         Day::ResetShiftStats(currentShift);
-        
+        currentShift.customersServed = 0;
         resetGameSignal = true;          // Let scene_game.cpp know it should re-initialize
         currentSubState = SUB_PLAYING_CASHIER; // Switch sub-state directly
         return;

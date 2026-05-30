@@ -8,7 +8,6 @@
 #include "scenes/game_main.h"
 #include "scenes/scene_menu.h"
 #include "scenes/scene_profile.h"
-#include "scenes/scene_saves.h"
 #include "scenes/scene_score.h"
 #include "scenes/scene_settings.h"
 #include <cmath>
@@ -73,8 +72,7 @@ int main() {
             currentState == STATE_MENU ||
             currentState == STATE_SETTINGS ||
             currentState == STATE_PROFILE ||
-            currentState == STATE_SCORE ||
-            currentState == STATE_SAVES
+            currentState == STATE_SCORE
         ){
             AssetManager::SetActiveMusic(MUSIC_MENU);
         }
@@ -113,9 +111,6 @@ int main() {
                 case STATE_PROFILE:
                     strcpy(title, "ANONYMNI REZIM");
                     break;
-                case STATE_SAVES:
-                    strcpy(title, "TOHLE JE NA TOM LIP JAK MOJE STUDIUM");
-                    break;
             }
             SetWindowTitle(title);
             lastState = currentState; 
@@ -136,9 +131,6 @@ int main() {
                 break;
             case STATE_SETTINGS:
                 runSettings(currentState, input);
-                break;
-            case STATE_SAVES:
-                runSaves(currentState, input);
                 break;
             case STATE_PROFILE:
                 runProfile(currentState, input, isGamePaused);

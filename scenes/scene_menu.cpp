@@ -17,8 +17,7 @@ void runMenu(GameState &currentState, InputManager &input, bool& isGamePaused) {
     Rectangle settingsButton = { 275, 270, 250, 40 };  
     Rectangle scoreButton    = { 275, 320, 250, 40 };
     Rectangle profileButton  = { 275, 370, 250, 40 };
-    Rectangle savesButton    = { 275, 420, 250, 40 };
-    Rectangle exitButton     = { 275, 470, 250, 40 };
+    Rectangle exitButton     = { 275, 420, 250, 40 };
 
     Vector2 mousePos = GetScreenToWorld2D(GetMousePosition(), Camera2D{ Vector2{0,0}, Vector2{0,0}, 0.0f, fminf((float)GetScreenWidth()/800.0f, (float)GetScreenHeight()/600.0f) });
     
@@ -57,9 +56,7 @@ void runMenu(GameState &currentState, InputManager &input, bool& isGamePaused) {
     if (CheckCollisionPointRec(mousePos, profileButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         currentState = STATE_PROFILE; 
     }
-    if (CheckCollisionPointRec(mousePos, savesButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
-        currentState = STATE_SAVES; 
-    }
+
     if (CheckCollisionPointRec(mousePos, exitButton) && IsMouseButtonPressed(MOUSE_BUTTON_LEFT)) {
         currentState = STATE_EXIT; 
     }
@@ -92,10 +89,6 @@ void runMenu(GameState &currentState, InputManager &input, bool& isGamePaused) {
     if (CheckCollisionPointRec(mousePos, profileButton)) DrawRectangleRec(profileButton, BLUE);
     else DrawRectangleRec(profileButton, GRAY);
     DrawTextEx(AssetManager::mainFont, "PROFIL", Vector2{profileButton.x + 100, profileButton.y + 12}, 14.0f, 1.0f, WHITE);
-
-    if (CheckCollisionPointRec(mousePos, savesButton)) DrawRectangleRec(savesButton, BLUE);
-    else DrawRectangleRec(savesButton, GRAY);
-    DrawTextEx(AssetManager::mainFont, "ULOZENE POZICE", Vector2{savesButton.x + 60, savesButton.y + 12}, 14.0f, 1.0f, WHITE);
 
     if (CheckCollisionPointRec(mousePos, exitButton)) DrawRectangleRec(exitButton, RED); 
     else DrawRectangleRec(exitButton, DARKGRAY);
