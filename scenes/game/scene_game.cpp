@@ -356,7 +356,8 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         for (size_t i = 0; i < beltItems.size(); i++) {
             if (!beltItems[i]->isScanned && CheckCollisionRecs(beltItems[i]->getRect(), scannerRect)) {
                 beltItems[i]->isScanned = true;
-                
+                AssetManager::PlayScanSound();
+
                 std::string line = beltItems[i]->name + " ... " + std::to_string(beltItems[i]->basePrice) + " Kc";
                 receiptHistory.push_back(line);
                 
@@ -461,6 +462,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
                 if (currentCustomer->hasClubcard) {
                     currentCustomer->gaveClubcard = true;
                     currentCustomer->cardResponse = "Ano, tady ji mam.";
+                    AssetManager::PlayCardSound();
                 } else {
                     currentCustomer->cardResponse = "Bohuzel ji nemam.";
                 }

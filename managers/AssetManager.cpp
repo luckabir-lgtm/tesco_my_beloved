@@ -8,6 +8,8 @@ Sound AssetManager::menuMusic = { 0 };
 Sound AssetManager::gameMusic = { 0 };
 Sound AssetManager::depressionMusic = { 0 };
 Texture2D AssetManager::clubcardTexture = { 0 };
+Sound AssetManager::scanSound = { 0 };
+Sound AssetManager::cardSound = { 0 };
 Sound* AssetManager::currentMusic = nullptr;
 std::vector<ItemTemplate> AssetManager::itemDatabase;
 std::map<std::string, Texture2D> AssetManager::textures;
@@ -15,10 +17,12 @@ std::map<std::string, Texture2D> AssetManager::customerTextures;
 
 void AssetManager::LoadAll(){
     mainFont = LoadFontEx("ASSets/fonts/Daydream.otf", 64, nullptr, 0);
-    menuMusic = LoadSound("ASSets/sounds/menu.wav");
-    gameMusic = LoadSound("ASSets/sounds/game.wav");
-    depressionMusic = LoadSound("ASSets/sounds/deprese.wav");
+    menuMusic = LoadSound("ASSets/sounds/menu.mp3");
+    gameMusic = LoadSound("ASSets/sounds/game.mp3");
+    depressionMusic = LoadSound("ASSets/sounds/deprese.mp3");
     clubcardTexture = LoadTexture("ASSets/textures/karticka.png");
+    scanSound = LoadSound("ASSets/sounds/scan.mp3");
+    cardSound = LoadSound("ASSets/sounds/kartes.mp3");
 }
 
 void AssetManager::UnloadAll(){
@@ -27,6 +31,8 @@ void AssetManager::UnloadAll(){
     UnloadSound(gameMusic);
     UnloadSound(depressionMusic);
     UnloadFont(mainFont);
+    UnloadSound(scanSound);
+    UnloadSound(cardSound);
 
     for (auto const& [id, tex] : textures) {
         UnloadTexture(tex);
@@ -214,4 +220,18 @@ Texture2D AssetManager::GetCustomerTexture(const std::string& id)
     }
 
     return Texture2D{ 0 };
+}
+
+void AssetManager::PlayScanSound()
+{
+    if (scanSound.frameCount > 0) {
+        PlaySound(scanSound);
+    }
+}
+
+void AssetManager::PlayCardSound()
+{
+    if (cardSound.frameCount > 0) {
+        PlaySound(cardSound);
+    }
 }
