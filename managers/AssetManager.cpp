@@ -10,6 +10,7 @@ Sound AssetManager::depressionMusic = { 0 };
 Texture2D AssetManager::clubcardTexture = { 0 };
 Sound AssetManager::scanSound = { 0 };
 Sound AssetManager::cardSound = { 0 };
+Texture2D AssetManager::cartTexture = { 0 };
 Sound* AssetManager::currentMusic = nullptr;
 std::vector<ItemTemplate> AssetManager::itemDatabase;
 std::map<std::string, Texture2D> AssetManager::textures;
@@ -23,6 +24,7 @@ void AssetManager::LoadAll(){
     clubcardTexture = LoadTexture("ASSets/textures/karticka.png");
     scanSound = LoadSound("ASSets/sounds/scan.mp3");
     cardSound = LoadSound("ASSets/sounds/kartes.mp3");
+    cartTexture = LoadTexture("ASSets/textures/kosik.png");
 }
 
 void AssetManager::UnloadAll(){
@@ -46,6 +48,11 @@ void AssetManager::UnloadAll(){
     if (clubcardTexture.id > 0) {
         UnloadTexture(clubcardTexture);
         clubcardTexture = { 0 };
+    }
+
+    if (cartTexture.id > 0) {
+        UnloadTexture(cartTexture);
+        cartTexture = { 0 };
     }
 
     customerTextures.clear();

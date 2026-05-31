@@ -61,11 +61,11 @@ int main() {
             );
         }
 
-        if (gameSettings.depressionMode) {
-            AssetManager::SetActiveMusic(MUSIC_DEPRESSION);
-        }
-        else if (videoPlaying) {
+        if (videoPlaying) {
             AssetManager::SetActiveMusic(MUSIC_NONE);
+        }
+        else if (gameSettings.depressionMode) {
+            AssetManager::SetActiveMusic(MUSIC_DEPRESSION);
         }
         else if (
             currentState == STATE_INTRO ||

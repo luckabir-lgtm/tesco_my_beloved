@@ -39,7 +39,7 @@ public:
     static Sound scanSound;
     static Sound cardSound;
     static Texture2D clubcardTexture;
-
+    static Texture2D cartTexture;
     static std::vector<ItemTemplate> itemDatabase; 
     static std::map<std::string, Texture2D> textures;
     static std::map<std::string, Texture2D> customerTextures;

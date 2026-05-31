@@ -181,7 +181,7 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
 
             if (IsKeyPressed(KEY_R)) pressedKey = KEY_R;
             if (IsKeyPressed(KEY_T)) pressedKey = KEY_T;
-            if (IsKeyPressed(KEY_Z)) pressedKey = KEY_Z;
+            if (IsKeyPressed(KEY_Y)) pressedKey = KEY_Z;
             if (IsKeyPressed(KEY_U)) pressedKey = KEY_U;
 
             bool answered = pressedKey != KEY_NULL;
