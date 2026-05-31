@@ -104,6 +104,8 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
     static bool ageRestrictionMistakeGiven = false;
     static float clubcardPromptCenterY = 165.0f;
     static bool shiftClosing = false;
+    static bool extraCustomerPending = false;
+    static bool extraCustomerSpawned = false;
 
     if (resetGameSignal) {
         initialized = false;
@@ -146,6 +148,8 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         clubcardPromptCenterY = 165.0f + (float)GetRandomValue(-20, 20);
         qteRolledForThisCustomer = false;
         shiftClosing = false;
+        extraCustomerPending = false;
+        extraCustomerSpawned = false;
         initialized = true;
     }
 
@@ -156,12 +160,16 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
     }
 
     if (!isGamePaused) {
+
         if (!shiftClosing) {
             shiftTimer -= GetFrameTime();
 
             if (shiftTimer <= 0.0f) {
                 shiftTimer = 0.0f;
                 shiftClosing = true;
+
+                extraCustomerPending = GetRandomValue(1, 100) <= 25;
+                extraCustomerSpawned = false;
             }
         }
 
@@ -488,44 +496,79 @@ void runGameRecieved(GameState &currentState, InputManager &input, bool &isGameP
         // 3. LOGIKA PLATBY (Zaplacení rukou)
         if (currentCustomer->state == PAYING) {
             Rectangle payBtn = { 325, 230, 150, 40 };
+
             if (HandClick(leftHand, payBtn) || HandClick(rightHand, payBtn)) {
-                
-                // Kontrola: Pokud měl kartu a nezeptal ses, je to chyba
+
+                bool clubcardMistake = false;
+
                 if (currentCustomer->hasClubcard && !currentCustomer->hasCheckedCard) {
                     currentShift.mistakesMade++;
-                    mistakeMessage = "Chyba Nezeptal jsi se na Clubcard";
+                    clubcardMistake = true;
+
+                    mistakeMessage = "Chyba Nenaskenoval jsi Clubcard";
                     mistakeDisplayTimer = 3.0f;
-                    if (currentShift.mistakesMade >= 3) currentShift.wasFired = true;
+
+                    if (currentShift.mistakesMade >= 3) {
+                        currentShift.wasFired = true;
+                        mistakeMessage = "Mas padaka";
+                        mistakeDisplayTimer = 3.0f;
+                    }
                 }
 
                 currentShift.moneyEarned += totalSum;
                 currentShift.customersServed++;
+
                 currentCustomer->SayExitLine();
                 currentCustomer->state = WALKING_OUT;
+
                 qteActive = false;
                 qteResultText = "";
                 qteResultTimer = 0.0f;
+
                 totalSum = 0;
                 receiptHistory.clear();
-                discountLines.clear(); 
+                discountLines.clear();
                 showingDiscounts = false;
                 discountIndex = 0;
                 discountTimer = 0.0f;
                 finalDiscountedTotal = 0;
-                mistakeDisplayTimer = 0.0f;
-                mistakeMessage = "";
-                beltItems.clear(); 
+                beltItems.clear();
                 pendingDiscountLines.clear();
+
+                if (!clubcardMistake) {
+                    mistakeDisplayTimer = 0.0f;
+                    mistakeMessage = "";
+                }
             }
         }
 
         // --- SPAWN DALŠÍHO ZÁKAZNÍKA ---
         if (currentCustomer->state == GONE) {
 
-                if (shiftClosing) {
-                    subState = SUB_STATS;
+            if (shiftClosing) {
+                if (extraCustomerPending && !extraCustomerSpawned) {
+                    extraCustomerPending = false;
+                    extraCustomerSpawned = true;
+
+                    SpawnCustomerAndItems(currentCustomer, beltItems);
+
+                    clubcardPromptCenterY = 165.0f + (float)GetRandomValue(-20, 20);
+                    ageRestrictionMistakeGiven = false;
+                    qteRolledForThisCustomer = false;
+                    qteActive = false;
+                    qteTimer = 0.0f;
+                    qteResultText = "";
+                    qteResultTimer = 0.0f;
+
+                    mistakeMessage = "Zakaznik: Stiham to jeste, ze jo?";
+                    mistakeDisplayTimer = 3.0f;
+
                     return;
                 }
+
+                subState = SUB_STATS;
+                return;
+            }
 
             SpawnCustomerAndItems(currentCustomer, beltItems);
             clubcardPromptCenterY = 165.0f + (float)GetRandomValue(-20, 20);

@@ -10,6 +10,7 @@
 #include "scenes/scene_profile.h"
 #include "scenes/scene_score.h"
 #include "scenes/scene_settings.h"
+#include "scenes/scene_controls.h"
 #include <cmath>
 
 int main() {
@@ -72,7 +73,8 @@ int main() {
             currentState == STATE_MENU ||
             currentState == STATE_SETTINGS ||
             currentState == STATE_PROFILE ||
-            currentState == STATE_SCORE
+            currentState == STATE_SCORE ||
+            currentState == STATE_CONTROLS
         ){
             AssetManager::SetActiveMusic(MUSIC_MENU);
         }
@@ -111,6 +113,9 @@ int main() {
                 case STATE_PROFILE:
                     strcpy(title, "ANONYMNI REZIM");
                     break;
+                case STATE_CONTROLS:
+                    strcpy(title, "MANUAL K POKLADNE");
+                    break;
             }
             SetWindowTitle(title);
             lastState = currentState; 
@@ -137,6 +142,9 @@ int main() {
                 break;
             case STATE_SCORE:
                 runScore(currentState, input);
+                break;
+            case STATE_CONTROLS:
+                runControls(currentState, input);
                 break;
             default:
                 break;
