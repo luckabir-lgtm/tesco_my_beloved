@@ -91,7 +91,6 @@ bool LoadProfile(const std::string& profileName, int enteredPin){
         file >> temp.shiftsCompleted;
         file >> temp.customersServed;
         file >> temp.totalMoneyEarned;
-        file.close();
         if (!(file >> temp.currentDayStreak)) {
             temp.currentDayStreak = 0;
             file.clear();
@@ -101,6 +100,10 @@ bool LoadProfile(const std::string& profileName, int enteredPin){
             temp.bestDayStreak = 0;
             file.clear();
         }
+
+        file.close();
+
+
         if (temp.pinCode == enteredPin){
             activeProfile = temp;
             isUserLoggedIn = true;

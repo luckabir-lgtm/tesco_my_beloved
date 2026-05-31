@@ -10,9 +10,6 @@
 #include <algorithm>
 #include <cmath>
 
-
-
-
 static bool LoadScoreProfile(const std::string& profileName, ScoreRow& row)
 {
     std::string filename = "profiles/profil_" + profileName + ".txt";
@@ -46,7 +43,11 @@ static bool LoadScoreProfile(const std::string& profileName, ScoreRow& row)
     file >> save_id;
     file >> shiftsCompleted;
     file >> customersServed;
-    file >> totalMoneyEarned;
+
+    if (!(file >> totalMoneyEarned)) {
+        totalMoneyEarned = 0;
+        file.clear();
+    }
 
     if (!(file >> currentDayStreak)) {
         currentDayStreak = 0;
@@ -61,7 +62,6 @@ static bool LoadScoreProfile(const std::string& profileName, ScoreRow& row)
     row.nickname = nickname;
     row.bestShift = maxScore;
     row.bestStreak = bestDayStreak;
-    row.totalMoney = totalMoneyEarned;
 
     return true;
 }
@@ -74,18 +74,19 @@ static std::vector<ScoreRow> LoadScoreRows()
 
     for (const std::string& profileName : allProfiles) {
         ScoreRow row;
+
         if (LoadScoreProfile(profileName, row)) {
             rows.push_back(row);
         }
     }
 
     if (rows.empty() && isUserLoggedIn) {
-        rows.push_back({
-            activeProfile.nickname,
-            activeProfile.maxScore,
-            activeProfile.bestDayStreak,
-            activeProfile.totalMoneyEarned
-        });
+        ScoreRow row;
+        row.nickname = activeProfile.nickname;
+        row.bestShift = activeProfile.maxScore;
+        row.bestStreak = activeProfile.bestDayStreak;
+
+        rows.push_back(row);
     }
 
     return rows;
@@ -103,13 +104,9 @@ static void DrawScoreTable(
         std::sort(rows.begin(), rows.end(), [](const ScoreRow& a, const ScoreRow& b) {
             return a.bestShift > b.bestShift;
         });
-    } else if (mode == 1) {
-        std::sort(rows.begin(), rows.end(), [](const ScoreRow& a, const ScoreRow& b) {
-            return a.bestStreak > b.bestStreak;
-        });
     } else {
         std::sort(rows.begin(), rows.end(), [](const ScoreRow& a, const ScoreRow& b) {
-            return a.totalMoney > b.totalMoney;
+            return a.bestStreak > b.bestStreak;
         });
     }
 
@@ -134,10 +131,10 @@ static void DrawScoreTable(
             1.0f,
             DARKGRAY
         );
+
         return;
     }
 
-    // jen TOP 5 profilu
     int maxRows = rows.size() < 5 ? (int)rows.size() : 5;
 
     for (int i = 0; i < maxRows; i++) {
@@ -149,21 +146,15 @@ static void DrawScoreTable(
         if (mode == 0) {
             value = row.bestShift;
             suffix = " Kc";
-        } else if (mode == 1) {
+        } else {
             value = row.bestStreak;
             suffix = " dni";
-        } else {
-            value = row.totalMoney;
-            suffix = " Kc";
         }
 
         Color valueColor = (i == 0) ? RED : BLUE;
 
-        std::string namePart =
-            std::to_string(i + 1) + ". " + row.nickname;
-
-        std::string valuePart =
-            std::to_string(value) + suffix;
+        std::string namePart = std::to_string(i + 1) + ". " + row.nickname;
+        std::string valuePart = std::to_string(value) + suffix;
 
         float rowY = (float)y + 65 + i * 38.0f;
 
@@ -187,14 +178,20 @@ static void DrawScoreTable(
     }
 }
 
-
-void runScore(GameState &currentState, InputManager &input) {
+void runScore(GameState &currentState, InputManager &input)
+{
     if (input.IsBackTriggered()) {
         currentState = STATE_MENU;
+        return;
     }
 
     Vector2 mousePos = GetMousePosition();
-    float scale = fminf((float)GetScreenWidth() / 800.0f, (float)GetScreenHeight() / 600.0f);
+
+    float scale = fminf(
+        (float)GetScreenWidth() / 800.0f,
+        (float)GetScreenHeight() / 600.0f
+    );
+
     mousePos.x = (mousePos.x - ((float)GetScreenWidth() - (800.0f * scale)) * 0.5f) / scale;
     mousePos.y = (mousePos.y - ((float)GetScreenHeight() - (600.0f * scale)) * 0.5f) / scale;
 
@@ -212,27 +209,19 @@ void runScore(GameState &currentState, InputManager &input) {
     );
 
     DrawScoreTable(
-        "NEJVIC ZA SMENU",
+        "NEJVIC ZA DEN",
         rows,
-        25,
+        140,
         115,
         0
     );
 
     DrawScoreTable(
-        "NEJDELSI SERIE",
+        "NEJVIC DNI",
         rows,
-        285,
+        430,
         115,
         1
-    );
-
-    DrawScoreTable(
-        "NEJVIC CELKEM",
-        rows,
-        545,
-        115,
-        2
     );
 
     if (isUserLoggedIn) {
@@ -251,10 +240,9 @@ void runScore(GameState &currentState, InputManager &input) {
         DrawTextEx(
             AssetManager::mainFont,
             TextFormat(
-                "Smena: %d Kc   Serie: %d dni   Celkem: %d Kc",
+                "Nejvic za den: %d Kc   Nejvic dni: %d",
                 activeProfile.maxScore,
-                activeProfile.bestDayStreak,
-                activeProfile.totalMoneyEarned
+                activeProfile.bestDayStreak
             ),
             Vector2{ 140, 472 },
             11.0f,

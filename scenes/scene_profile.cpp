@@ -86,10 +86,10 @@ void runProfile(GameState& currentState, InputManager& input, bool& isGamePaused
                 DrawRectangle(180, 130, 100, 100, GRAY); 
             }
 
-            DrawTextEx(AssetManager::mainFont, TextFormat("Jmeno            %s", activeProfile.nickname.c_str()), Vector2{ 310, 130 }, 16.0f, 1.0f, BLACK);
-            DrawTextEx(AssetManager::mainFont, TextFormat("Kasa ID          %04d", activeProfile.employeeId), Vector2{ 310, 155 }, 14.0f, 1.0f, DARKGRAY);
-            DrawTextEx(AssetManager::mainFont, TextFormat("Pozice           %s", activeProfile.GetRankName().c_str()), Vector2{ 310, 180 }, 14.0f, 1.0f, RED);
-            DrawTextEx(AssetManager::mainFont, TextFormat("Trzba            %d Kc", activeProfile.maxScore), Vector2{ 310, 205 }, 14.0f, 1.0f, GOLD);
+            DrawTextEx(AssetManager::mainFont, TextFormat("JMENO            %s", activeProfile.nickname.c_str()), Vector2{ 310, 130 }, 16.0f, 1.0f, BLACK);
+            DrawTextEx(AssetManager::mainFont, TextFormat("KASA ID          %04d", activeProfile.employeeId), Vector2{ 310, 155 }, 14.0f, 1.0f, DARKGRAY);
+            DrawTextEx(AssetManager::mainFont, TextFormat("POZICE           %s", activeProfile.GetRankName().c_str()), Vector2{ 310, 180 }, 14.0f, 1.0f, RED);
+            DrawTextEx(AssetManager::mainFont, TextFormat("MAX TRZBA            %d Kc", activeProfile.maxScore), Vector2{ 310, 205 }, 14.0f, 1.0f, GOLD);
 
             Rectangle logoutBtn = { 250, 320, 300, 45 };
             bool hoverLogout = CheckCollisionPointRec(mousePos, logoutBtn);
@@ -216,10 +216,10 @@ void runProfile(GameState& currentState, InputManager& input, bool& isGamePaused
             DrawTextEx(AssetManager::mainFont, "FOTO", Vector2{ 210, 170 }, 12.0f, 1.0f, WHITE);
         }
 
-        DrawTextEx(AssetManager::mainFont, TextFormat("Jmeno            %s", inspectedProfile.nickname.c_str()), Vector2{ 310, 130 }, 16.0f, 1.0f, BLACK);
-        DrawTextEx(AssetManager::mainFont, TextFormat("Kasa             %04d", inspectedProfile.employeeId), Vector2{ 310, 155 }, 14.0f, 1.0f, DARKGRAY);
-        DrawTextEx(AssetManager::mainFont, TextFormat("Pozice           %s", inspectedProfile.GetRankName().c_str()), Vector2{ 310, 180 }, 14.0f, 1.0f, RED);
-        DrawTextEx(AssetManager::mainFont, TextFormat("Trzba            %d Kc", inspectedProfile.totalMoneyEarned), Vector2{ 310, 205 }, 14.0f, 1.0f, GOLD);
+        DrawTextEx(AssetManager::mainFont, TextFormat("JMENO            %s", activeProfile.nickname.c_str()), Vector2{ 310, 130 }, 16.0f, 1.0f, BLACK);
+        DrawTextEx(AssetManager::mainFont, TextFormat("KASA ID          %04d", activeProfile.employeeId), Vector2{ 310, 155 }, 14.0f, 1.0f, DARKGRAY);
+        DrawTextEx(AssetManager::mainFont, TextFormat("POZICE           %s", activeProfile.GetRankName().c_str()), Vector2{ 310, 180 }, 14.0f, 1.0f, RED);
+        DrawTextEx(AssetManager::mainFont, TextFormat("MAX TRZBA            %d Kc", activeProfile.maxScore), Vector2{ 310, 205 }, 14.0f, 1.0f, GOLD);
 
         DrawTextEx(AssetManager::mainFont, "ZADEJTE PIN PRO VSTUP DO KASY", Vector2{ 250, 280 }, 14.0f, 1.0f, BLACK);
 
